@@ -1,3 +1,28 @@
+/**
+ * Determine the mobile operating system.
+ * This function returns one of 'iOS', 'Android', 'Windows Phone', or 'unknown'.
+ *
+ * @returns {String}
+ */
+function getMobileOperatingSystem() {
+  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+      // Windows Phone must come first because its UA also contains "Android"
+    if (/windows phone/i.test(userAgent)) {
+        return "Windows Phone";
+    }
+
+    if (/android/i.test(userAgent)) {
+        return "Android";
+    }
+
+    // iOS detection from: http://stackoverflow.com/a/9039885/177710
+    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+        return "iOS";
+    }
+
+    return "unknown";
+}
 /*
 
 	countUp.js
@@ -11,7 +36,7 @@
 // decimals = number of decimal places, default 0
 // duration = duration of animation in seconds, default 2
 // options = optional object of options (see below)
-
+var isIOS = getMobileOperatingSystem()==='IOS';
 var CountUp = function(target, startVal, endVal, decimals, duration, options) {
 
 	// make sure requestAnimationFrame and cancelAnimationFrame are defined
@@ -19,12 +44,12 @@ var CountUp = function(target, startVal, endVal, decimals, duration, options) {
 	// by Opera engineer Erik Möller
 	var lastTime = 0;
 	var vendors = ['webkit', 'moz', 'ms', 'o'];
-	for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+	for(var x = 0; x < vendors.length && !window.requestAnimationFrame || isIOS; ++x) {
 		window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
 		window.cancelAnimationFrame =
 		  window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
 	}
-	if (!window.requestAnimationFrame) {
+	if (!window.requestAnimationFrame || isIOS) {
 		window.requestAnimationFrame = function(callback, element) {
 			var currTime = new Date().getTime();
 			var timeToCall = Math.max(0, 16 - (currTime - lastTime));
@@ -34,7 +59,7 @@ var CountUp = function(target, startVal, endVal, decimals, duration, options) {
 			return id;
 		};
 	}
-	if (!window.cancelAnimationFrame) {
+	if (!window.cancelAnimationFrame || isIOS) {
 		window.cancelAnimationFrame = function(id) {
 			clearTimeout(id);
 		};
